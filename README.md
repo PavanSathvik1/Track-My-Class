@@ -1,4 +1,4 @@
-# Student Management System (Java Console App)
+# Track My Class (Java Console App)
 
 A Java console-based application to manage student records. Automatically assigns mentors based on the student's academic year using a mentor mapping file.
 
