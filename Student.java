@@ -1,3 +1,7 @@
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Student {
     private String id;
     private String name;
@@ -22,16 +26,77 @@ public class Student {
     public String getDepartment() { return department; }
     public String getMentor() { return mentor; }
 
-    @Override
-    public String toString() {
-        return id + "," + name + "," + age + "," + year + "," + department + "," + mentor;
+    // Save student to DB
+    public void saveToDB() {
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "INSERT INTO students (id, name, age, department, year, mentor) VALUES (?, ?, ?, ?, ?, ?)")) {
+            pstmt.setString(1, id);
+            pstmt.setString(2, name);
+            pstmt.setInt(3, age);
+            pstmt.setString(4, department);
+            pstmt.setString(5, year);
+            pstmt.setString(6, mentor);
+            pstmt.executeUpdate();
+            System.out.println("✅ Student saved to DB!");
+        } catch (SQLException e) {
+            System.out.println("❌ Error saving student: " + e.getMessage());
+        }
     }
 
-    public static Student fromString(String line) {
-        String[] parts = line.split(",");
-        if (parts.length == 6) {
-            return new Student(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], parts[4], parts[5]);
+    // Get all students
+    public static List<Student> getAllStudents() {
+        List<Student> list = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM students")) {
+
+            while (rs.next()) {
+                list.add(new Student(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getInt("age"),
+                        rs.getString("year"),
+                        rs.getString("department"),
+                        rs.getString("mentor")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Find student by ID
+    public static Student findById(String id) {
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM students WHERE id=?")) {
+            pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Student(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getInt("age"),
+                        rs.getString("year"),
+                        rs.getString("department"),
+                        rs.getString("mentor"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
+    }
+
+    // Delete student by ID
+    public static boolean deleteById(String id) {
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM students WHERE id=?")) {
+            pstmt.setString(1, id);
+            int rows = pstmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

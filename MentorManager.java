@@ -1,24 +1,37 @@
-import java.io.*;
-import java.util.*;
+import java.sql.*;
+import java.util.HashMap;
 
 public class MentorManager {
-    private static Map<String, String> mentorMap = new HashMap<>();
+    private static HashMap<String, String> mentorMap = new HashMap<>();
 
-    public static void loadMentors(String filename) {
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split("=");
-                if (parts.length == 2) {
-                    mentorMap.put(parts[0].trim(), parts[1].trim());
-                }
+    public static void loadMentorsFromDB() {
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM mentors");
+            rs.next();
+            int count = rs.getInt(1);
+
+            if (count == 0) {
+                stmt.executeUpdate("INSERT INTO mentors VALUES ('1st','Dr. Sharma')");
+                stmt.executeUpdate("INSERT INTO mentors VALUES ('2nd','Prof. Rao')");
+                stmt.executeUpdate("INSERT INTO mentors VALUES ('3rd','Dr. Meena')");
+                stmt.executeUpdate("INSERT INTO mentors VALUES ('4th','Dr. Kulkarni')");
+                System.out.println("✅ Default mentors inserted");
             }
-        } catch (IOException e) {
-            System.out.println("Mentor file not found.");
+
+            rs = stmt.executeQuery("SELECT * FROM mentors");
+            mentorMap.clear();
+            while (rs.next()) {
+                mentorMap.put(rs.getString("year"), rs.getString("name"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
     public static String getMentor(String year) {
-        return mentorMap.getOrDefault(year, "No Mentor Assigned");
+        return mentorMap.get(year);
     }
 }

@@ -1,14 +1,8 @@
-import java.io.*;
 import java.util.*;
 
 public class Main {
-    static final String FILE_NAME = "students.txt";
-    static List<Student> students = new ArrayList<>();
-
     public static void main(String[] args) {
-        loadStudents();
-        MentorManager.loadMentors("mentors.txt");
-
+        MentorManager.loadMentorsFromDB();
 
         Scanner sc = new Scanner(System.in);
         int choice;
@@ -22,14 +16,14 @@ public class Main {
             System.out.println("5. Exit");
             System.out.print("Enter choice: ");
             choice = sc.nextInt();
-            sc.nextLine();  // Consume newline
+            sc.nextLine();
 
             switch (choice) {
                 case 1 -> addStudent(sc);
                 case 2 -> viewStudents();
                 case 3 -> searchStudent(sc);
                 case 4 -> deleteStudent(sc);
-                case 5 -> saveStudents();
+                case 5 -> System.out.println("Exiting...");
                 default -> System.out.println("Invalid choice!");
             }
         } while (choice != 5);
@@ -51,79 +45,48 @@ public class Main {
         String mentor = MentorManager.getMentor(year);
 
         Student s = new Student(id, name, age, year, department, mentor);
-        students.add(s);
+        s.saveToDB();
         System.out.println("Student added with mentor: " + mentor);
     }
 
-
     static void viewStudents() {
+        List<Student> students = Student.getAllStudents();
         if (students.isEmpty()) {
             System.out.println("No students found.");
             return;
         }
         for (Student s : students) {
             System.out.println("ID: " + s.getId() +
-                " | Name: " + s.getName() +
-                " | Age: " + s.getAge() +
-                " | Year: " + s.getYear() +
-                " | Dept: " + s.getDepartment() +
-                " | Mentor: " + s.getMentor());
+                    " | Name: " + s.getName() +
+                    " | Age: " + s.getAge() +
+                    " | Year: " + s.getYear() +
+                    " | Dept: " + s.getDepartment() +
+                    " | Mentor: " + s.getMentor());
         }
     }
 
     static void searchStudent(Scanner sc) {
         System.out.print("Enter ID to search: ");
         String id = sc.nextLine();
-        for (Student s : students) {
-            if (s.getId().equals(id)) {
-                System.out.println("Found -> Name: " + s.getName() +
+        Student s = Student.findById(id);
+        if (s != null) {
+            System.out.println("Found -> Name: " + s.getName() +
                     ", Age: " + s.getAge() +
                     ", Year: " + s.getYear() +
                     ", Dept: " + s.getDepartment() +
                     ", Mentor: " + s.getMentor());
-                return;
-            }
+        } else {
+            System.out.println("Student not found.");
         }
-        System.out.println("Student not found.");
     }
 
     static void deleteStudent(Scanner sc) {
         System.out.print("Enter ID to delete: ");
         String id = sc.nextLine();
-        Iterator<Student> iterator = students.iterator();
-        boolean found = false;
-        while (iterator.hasNext()) {
-            if (iterator.next().getId().equals(id)) {
-                iterator.remove();
-                found = true;
-                System.out.println("Student deleted.");
-                break;
-            }
-        }
-        if (!found) System.out.println("Student not found.");
-    }
-
-    static void saveStudents() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
-            for (Student s : students) {
-                writer.write(s.toString());
-                writer.newLine();
-            }
-            System.out.println("Students saved to file.");
-        } catch (IOException e) {
-            System.out.println("Error saving students: " + e.getMessage());
-        }
-    }
-
-    static void loadStudents() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Student s = Student.fromString(line);
-                if (s != null) students.add(s);
-            }
-        } catch (IOException e) {
-            System.out.println("No previous student data found.");
+        if (Student.deleteById(id)) {
+            System.out.println("Student deleted.");
+        } else {
+            System.out.println("Student not found.");
         }
     }
 }
