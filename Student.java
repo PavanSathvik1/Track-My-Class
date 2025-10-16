@@ -38,9 +38,9 @@ public class Student {
             pstmt.setString(5, year);
             pstmt.setString(6, mentor);
             pstmt.executeUpdate();
-            System.out.println("✅ Student saved to DB!");
+            System.out.println("Student saved to DB!");
         } catch (SQLException e) {
-            System.out.println("❌ Error saving student: " + e.getMessage());
+            System.out.println("Error saving student: " + e.getMessage());
         }
     }
 
