@@ -25,7 +25,7 @@ public class DatabaseManager {
             try (Connection conn = DriverManager.getConnection(baseUrl, USER, PASSWORD);
                  Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + DB_NAME);
-                System.out.println("✅ Database ready: " + DB_NAME);
+                System.out.println("Database ready: " + DB_NAME);
             }
 
             // Step 2: Create tables if not exist
@@ -47,7 +47,7 @@ public class DatabaseManager {
                         "FOREIGN KEY (year) REFERENCES mentors(year)" +
                         ")");
 
-                System.out.println("✅ Tables ready (created if not existing)");
+                System.out.println("Tables ready (created if not existing)");
             }
 
         } catch (IOException | SQLException e) {
@@ -59,3 +59,4 @@ public class DatabaseManager {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
+
