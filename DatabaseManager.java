@@ -11,7 +11,6 @@ public class DatabaseManager {
 
     static {
         try {
-            // Load db.properties
             Properties props = new Properties();
             props.load(new FileInputStream("db.properties"));
 
@@ -21,14 +20,12 @@ public class DatabaseManager {
             USER = props.getProperty("db.user");
             PASSWORD = props.getProperty("db.password");
 
-            // Step 1: Create database if not exists
             try (Connection conn = DriverManager.getConnection(baseUrl, USER, PASSWORD);
                  Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + DB_NAME);
                 System.out.println("Database ready: " + DB_NAME);
             }
 
-            // Step 2: Create tables if not exist
             try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
                  Statement stmt = conn.createStatement()) {
 
@@ -59,4 +56,5 @@ public class DatabaseManager {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
+
 
