@@ -17,7 +17,7 @@ public class MentorManager {
                 stmt.executeUpdate("INSERT INTO mentors VALUES ('2nd','Prof. Rao')");
                 stmt.executeUpdate("INSERT INTO mentors VALUES ('3rd','Dr. Meena')");
                 stmt.executeUpdate("INSERT INTO mentors VALUES ('4th','Dr. Kulkarni')");
-                System.out.println("✅ Default mentors inserted");
+                System.out.println("Default mentors inserted");
             }
 
             rs = stmt.executeQuery("SELECT * FROM mentors");
@@ -35,3 +35,4 @@ public class MentorManager {
         return mentorMap.get(year);
     }
 }
+
